@@ -49,8 +49,10 @@ const Dashboard = () => {
     );
   }
 
-  const totalActivities = stats?.byType.reduce((acc: number, curr: { count: number }) => acc + curr.count, 0) || 0;
-  const monthlyTotal = stats?.monthly[0]?.count || 0;
+  const totalActivities = stats?.byType?.reduce((acc: number, curr: { count: number }) => acc + curr.count, 0) || 0;
+  const monthlyTotal = stats?.monthly?.[0]?.count || 0;
+  const recentActivities = activities ? activities.slice(0, 5) : [];
+  const activityTypes = stats?.byType || [];
 
   return (
     <MainLayout>
@@ -73,7 +75,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <StatCard
             title="Activity Types"
-            value={stats?.byType.length || 0}
+            value={activityTypes.length}
           />
         </Grid>
       </Grid>
@@ -85,7 +87,7 @@ const Dashboard = () => {
               Activity Distribution
             </Typography>
             <List>
-              {stats?.byType.map((stat: { _id: string; count: number }) => (
+              {activityTypes.map((stat: { _id: string; count: number }) => (
                 <div key={stat._id}>
                   <ListItem>
                     <ListItemText
@@ -105,7 +107,7 @@ const Dashboard = () => {
               Recent Activities
             </Typography>
             <List>
-              {activities.slice(0, 5).map((activity: Activity) => (
+              {recentActivities.map((activity: Activity) => (
                 <div key={activity._id}>
                   <ListItem>
                     <ListItemText

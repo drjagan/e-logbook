@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   createActivity,
   updateActivity,
-  getActivityById,
+  getActivity,
   clearSelectedActivity,
 } from '../store/slices/activitySlice';
 import { MainLayout } from '../components/Layout/MainLayout';
@@ -48,7 +48,7 @@ const ActivityForm = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(getActivityById(id));
+      dispatch(getActivity(id));
     }
     return () => {
       dispatch(clearSelectedActivity());
@@ -85,7 +85,7 @@ const ActivityForm = () => {
     e.preventDefault();
     try {
       if (id) {
-        await dispatch(updateActivity({ id, activityData: formData })).unwrap();
+        await dispatch(updateActivity({ id, activity: formData })).unwrap();
       } else {
         await dispatch(createActivity(formData)).unwrap();
       }
