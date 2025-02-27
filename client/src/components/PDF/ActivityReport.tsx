@@ -1,6 +1,8 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, StyleSheet } from '@react-pdf/renderer';
 import { Activity } from '../../types/activity';
-import { format } from 'date-fns';
+import { CoverPage } from './CoverPage';
+import { TableOfContents } from './TableOfContents';
+import { ActivityDetailPage } from './ActivityDetailPage';
 
 interface ActivityReportProps {
   activities: Activity[];
@@ -8,6 +10,7 @@ interface ActivityReportProps {
     startDate: string;
     endDate: string;
   };
+  residentName: string;
   type?: string;
 }
 
@@ -16,87 +19,43 @@ const styles = StyleSheet.create({
     padding: 30,
     fontSize: 12,
   },
-  header: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-  },
-  filterInfo: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-  },
-  tableContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    minHeight: 30,
-    alignItems: 'center',
-  },
-  tableHeader: {
-    backgroundColor: '#f5f5f5',
-    fontWeight: 'bold',
-  },
-  tableCell: {
-    flex: 1,
-    padding: 5,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 30,
-    right: 30,
-    textAlign: 'center',
-    color: '#666',
-    fontSize: 10,
-  },
 });
 
-export const ActivityReport = ({ activities, dateRange, type }: ActivityReportProps) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Activity Report</Text>
-        <Text style={styles.subtitle}>Generated on {format(new Date(), 'MMM dd, yyyy HH:mm')}</Text>
-      </View>
+export const ActivityReport = ({ 
+  activities, 
+  dateRange, 
+  residentName,
+  type 
+}: ActivityReportProps) => {
+  // Calculate the starting page number for activities
+  // Page 1: Cover Page
+  // Page 2: Table of Contents
+  // Page 3+: Activity Details
+  const activityStartPage = 3;
 
-      <View style={styles.filterInfo}>
-        <Text>Date Range: {format(new Date(dateRange.startDate), 'MMM dd, yyyy')} - {format(new Date(dateRange.endDate), 'MMM dd, yyyy')}</Text>
-        {type && type !== 'All' && <Text>Activity Type: {type}</Text>}
-        <Text>Total Activities: {activities.length}</Text>
-      </View>
+  return (
+    <Document>
+      {/* Cover Page */}
+      <CoverPage
+        residentName={residentName}
+        dateRange={dateRange}
+        totalActivities={activities.length}
+      />
 
-      <View style={styles.tableContainer}>
-        <View style={[styles.tableRow, styles.tableHeader]}>
-          <Text style={styles.tableCell}>Title</Text>
-          <Text style={styles.tableCell}>Type</Text>
-          <Text style={styles.tableCell}>Date</Text>
-        </View>
-        {activities.map((activity) => (
-          <View key={activity._id} style={styles.tableRow}>
-            <Text style={styles.tableCell}>{activity.title}</Text>
-            <Text style={styles.tableCell}>{activity.type}</Text>
-            <Text style={styles.tableCell}>
-              {format(new Date(activity.activityDate), 'MMM dd, yyyy')}
-            </Text>
-          </View>
-        ))}
-      </View>
+      {/* Table of Contents */}
+      <TableOfContents
+        activities={activities}
+        startPage={activityStartPage}
+      />
 
-      <View style={styles.footer}>
-        <Text>E-Logbook Activity Report • Page 1</Text>
-      </View>
-    </Page>
-  </Document>
-);
+      {/* Activity Detail Pages */}
+      {activities.map((activity, index) => (
+        <ActivityDetailPage
+          key={activity._id}
+          activity={activity}
+          pageNumber={activityStartPage + index}
+        />
+      ))}
+    </Document>
+  );
+};

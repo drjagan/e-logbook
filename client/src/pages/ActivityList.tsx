@@ -52,6 +52,7 @@ const ActivityList = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { activities = [], loading, pagination } = useAppSelector((state) => state.activities);
+  const { user } = useAppSelector((state) => state.auth);
   const [filters, setFilters] = useState({
     type: 'All',
     startDate: '',
@@ -271,9 +272,10 @@ const ActivityList = () => {
               <ActivityReport
                 activities={selectedActivities}
                 dateRange={{
-                  startDate: filters.startDate || activities[0]?.activityDate || new Date().toISOString(),
+                  startDate: filters.startDate || selectedActivities[0]?.activityDate || new Date().toISOString(),
                   endDate: filters.endDate || new Date().toISOString(),
                 }}
+                residentName={user?.name || 'Resident'}
                 type={filters.type}
               />
             </PDFViewer>

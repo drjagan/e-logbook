@@ -15,9 +15,11 @@ We will implement PDF report generation using the following architecture:
 2. **PDF Generation**
    - Use `@react-pdf/renderer` library for PDF generation
    - Create reusable PDF components for:
+     - Cover page with resident information
+     - Table of contents
      - Report header with resident info
      - Activity summary section
-     - Detailed activity list
+     - Detailed activity list with full report content
      - Statistics/charts section
 
 3. **Report Templates**
@@ -25,6 +27,27 @@ We will implement PDF report generation using the following architecture:
      - Summary Report (high-level overview)
      - Detailed Report (complete activity details)
      - Custom Report (user-selected fields)
+
+### Report Structure
+1. **Cover Page (Page 1)**
+   - Resident name and information
+   - Report generation date
+   - Institution logo/header
+   - Report period
+
+2. **Table of Contents (Page 2)**
+   - Dynamic generation based on activities
+   - Page numbers for each activity
+   - Section headers for different activity types
+
+3. **Activity Details (Page 3+)**
+   - Full activity information including:
+     - Title and type
+     - Date and timestamps
+     - Complete report content from TinyMCE
+     - Any additional metadata
+   - Proper page breaks between activities
+   - Consistent formatting of rich text content
 
 ### Backend Services
 1. **Report Generation API**
@@ -51,6 +74,7 @@ We will implement PDF report generation using the following architecture:
   - `@react-pdf/renderer`: PDF generation
   - `@mui/lab`: Enhanced selection components
   - `recharts`: For charts/statistics in reports
+  - `html-to-pdfmake`: Convert HTML content to PDF format
 
 - Backend:
   - `pdfkit`: PDF generation
@@ -58,9 +82,10 @@ We will implement PDF report generation using the following architecture:
 
 ## Implementation Phases
 1. Phase 1:
-   - Activity selection UI
-   - Basic PDF generation
-   - Simple report template
+   - Cover page implementation
+   - Table of contents generation
+   - Full activity detail display
+   - Rich text content formatting
 
 2. Phase 2:
    - Multiple report templates
@@ -77,6 +102,7 @@ We will implement PDF report generation using the following architecture:
    - Generate PDFs server-side for large reports
    - Implement pagination for report preview
    - Cache frequently generated reports
+   - Handle large rich text content efficiently
 
 2. **Security**
    - Validate user permissions for selected activities
@@ -103,11 +129,14 @@ We will implement PDF report generation using the following architecture:
 - Flexible report customization
 - Efficient activity selection
 - Reusable PDF components
+- Complete activity documentation
+- Better organization with table of contents
 
 ### Negative
 - Additional server load
 - More complex UI state management
 - Increased testing requirements
+- More complex content formatting
 
 ## References
 - [React-PDF Documentation](https://react-pdf.org/)

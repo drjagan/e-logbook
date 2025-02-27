@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { PDFViewer } from '@react-pdf/renderer';
 import {
   Box,
   Paper,
@@ -10,28 +11,35 @@ import {
   CircularProgress,
   Alert,
   Divider,
+  Dialog,
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   ArrowBack as ArrowBackIcon,
+  PictureAsPdf as PdfIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { getActivityById, deleteActivity } from '../store/slices/activitySlice';
+import { getActivity, deleteActivity } from '../store/slices/activitySlice';
 import { MainLayout } from '../components/Layout/MainLayout';
+import { ActivityReport } from '../components/PDF/ActivityReport';
+import { useState } from 'react';
 
 const ActivityDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [pdfOpen, setPdfOpen] = useState(false);
+  
   const { selectedActivity: activity, loading, error } = useAppSelector(
     (state) => state.activities
   );
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (id) {
-      dispatch(getActivityById(id));
+      dispatch(getActivity(id));
     }
   }, [dispatch, id]);
 
@@ -40,6 +48,10 @@ const ActivityDetails = () => {
       await dispatch(deleteActivity(id));
       navigate('/activities');
     }
+  };
+
+  const handleGeneratePDF = () => {
+    setPdfOpen(true);
   };
 
   if (loading) {
@@ -71,13 +83,24 @@ const ActivityDetails = () => {
   return (
     <MainLayout>
       <Box mb={4}>
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
           <Grid item>
             <Button
               startIcon={<ArrowBackIcon />}
               onClick={() => navigate('/activities')}
             >
               Back to Activities
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              startIcon={<PdfIcon />}
+              variant="contained"
+              color="primary"
+              onClick={handleGeneratePDF}
+              sx={{ mr: 1 }}
+            >
+              Generate PDF
             </Button>
           </Grid>
         </Grid>
@@ -172,6 +195,28 @@ const ActivityDetails = () => {
           </Grid>
         </Grid>
       </Paper>
+
+      {/* PDF Preview Dialog */}
+      <Dialog
+        open={pdfOpen}
+        onClose={() => setPdfOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <Box sx={{ height: '90vh', p: 2 }}>
+          <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+            <ActivityReport
+              activities={[activity]}
+              dateRange={{
+                startDate: activity.activityDate,
+                endDate: activity.activityDate,
+              }}
+              residentName={user?.name || 'Resident'}
+              type={activity.type}
+            />
+          </PDFViewer>
+        </Box>
+      </Dialog>
     </MainLayout>
   );
 };
